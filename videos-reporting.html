@@ -12,10 +12,13 @@
     body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,"Noto Sans";
          background:linear-gradient(180deg,var(--bg),var(--bg2)); color:var(--fg); min-height:100vh; transition:opacity .12s ease}
     header{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:12px;padding:16px 20px;border-bottom:1px solid var(--border)}
-    .left{justify-self:start}.center{justify-self:center;font-weight:800;letter-spacing:.2px}
+    .left{justify-self:start}
+    .center{justify-self:center;text-align:center;font-weight:800;letter-spacing:.2px}
+    .right{justify-self:end}
+    .logo{height:36px}
+    .btnLink{background:var(--input);color:var(--fg);border:1px solid var(--border);font-weight:800;padding:8px 14px;border-radius:12px;text-decoration:none}
     .wrap{max-width:900px;margin:40px auto;padding:0 18px}
     .card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:28px;text-align:center}
-    .btnLink{background:var(--input);color:var(--fg);border:1px solid var(--border);font-weight:800;padding:8px 14px;border-radius:12px;text-decoration:none}
     h1{margin:0 0 10px}
     p{color:var(--muted)}
   </style>
@@ -24,8 +27,8 @@
     window.addEventListener('DOMContentLoaded',()=>{
       if (!sessionStorage.getItem('portal_auth')) { location.replace('index.html'); return; }
       const BRAND = (window.APP_CONFIG && window.APP_CONFIG.BRAND) || 'Training Portal';
-      document.title = BRAND + ' — Reporting';
-      document.getElementById('hdr').textContent='Reporting';
+      document.title = BRAND + ' — <PAGE TITLE>';
+      document.getElementById('hdr').textContent='<HEADER TEXT>';
       document.documentElement.setAttribute('data-ready','true');
     });
   </script>
@@ -33,14 +36,15 @@
 <body>
   <header>
     <div class="left"><a class="btnLink" href="select.html">← Back</a></div>
-    <div class="center" id="hdr"><HEADER TEXT></div>
+    <div class="center" id="hdr">Reporting Training</div>
     <div class="right"><img class="logo" src="CX%20Advanced%20Solutions_Smaller_white.png" alt="CX Advanced Solutions"></div>
   </header>
+
   <div class="wrap">
     <section class="card">
       <h1>Coming soon</h1>
-      <p>Reporting & analytics training is being prepared. Check back shortly.</p>
+      <p>Content is being prepared. Check back shortly.</p>
     </section>
   </div>
 </body>
-</html>
+</html>  
