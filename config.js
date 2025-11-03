@@ -1,13 +1,6 @@
-<script>
-/* CXAS Training Portal 2.0 — client-only config */
+// config.js (root of the repo, same folder as index.html)
 window.APP_CONFIG = {
-  BRAND:    "CXAS Training Portal",   // header brand
-  PASSWORD: "letmein",                // single portal password
-  VERSION:  "v1"                      // bump to bust caches
+  BRAND:    "CXAS Training Portal",
+  PASSWORD: "letmein",   // change here
+  VERSION:  "v3"
 };
-
-console.info("APP_CONFIG loaded", {
-  BRAND: window.APP_CONFIG.BRAND,
-  VERSION: window.APP_CONFIG.VERSION
-});
-</script>
