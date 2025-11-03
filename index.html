@@ -1,80 +1,113 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-ready="false">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Training Portal</title>
-<meta name="color-scheme" content="dark">
-<style>
-  :root{ --bg:#0b1020; --bg2:#0a132a; --card:#131a2a; --muted:#92a0b8; --fg:#e9edf5; --input:#0e1525; --border:rgba(255,255,255,.08); --accentA:#22d3ee; --accentB:#3b82f6; }
-  *{box-sizing:border-box}
-  body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,"Noto Sans";
-       background:linear-gradient(180deg,var(--bg),var(--bg2)); color:var(--fg); min-height:100vh}
-  header{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:16px 20px;border-bottom:1px solid var(--border)}
-  .brand{justify-self:center;font-weight:800}
-  .logo{justify-self:end;height:36px;opacity:.9}
-  main{max-width:820px;margin:36px auto;padding:0 16px}
-  .card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:24px;box-shadow:0 10px 30px rgba(0,0,0,.25)}
-  h1{margin:0 0 .5rem 0;font-size:1.8rem;text-align:center}
-  .lead{margin:.25rem 0 1.25rem;color:var(--muted);text-align:center}
-  label{display:block;font-size:13px;color:var(--muted);margin:10px 0 6px}
-  input{width:100%;border-radius:12px;border:1px solid var(--border);background:var(--input);color:var(--fg);padding:11px 12px;outline:none}
-  input:focus{box-shadow:0 0 0 3px rgba(59,130,246,.25)}
-  .row{display:flex;gap:8px;align-items:center}
-  .btn{background:linear-gradient(135deg,var(--accentA),var(--accentB));border:none;color:#06111d;font-weight:800;padding:10px 16px;border-radius:12px;cursor:pointer;width:120px}
-  .error{color:#f87171;font-weight:700;text-align:center;min-height:1.2em;margin-top:.75rem}
-  footer{color:#93a3ba;text-align:center;font-size:.85rem;padding:18px}
-</style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Loading…</title>
+  <meta name="color-scheme" content="dark">
+  <style>
+    :root{ --bg:#0b1020; --card:#131a2a; --muted:#92a0b8; --fg:#e9edf5; --accentA:#22d3ee; --accentB:#3b82f6; --input:#0e1525; --border:rgba(255,255,255,.08); }
+    *,*::before,*::after{box-sizing:border-box}
+    html[data-ready="false"] body{opacity:0}
+    body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,"Noto Sans"; background:var(--bg); color:var(--fg); transition:opacity .12s ease}
+    header{padding:14px 18px;border-bottom:1px solid rgba(255,255,255,.06)}
+    .wrap{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr auto 1fr;align-items:center}
+    .left{justify-self:start}
+    .center{justify-self:center;text-align:center}
+    .right{justify-self:end}
+    .brand{font-weight:800;letter-spacing:.2px;font-size:1.1rem}
+    .logo{height:36px}
+    .btnLink{background:#0e1525;color:var(--fg);border:1px solid var(--border); font-weight:800;padding:8px 14px;border-radius:12px;text-decoration:none}
+    main{max-width:820px;margin:28px auto;padding:0 16px}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:22px;box-shadow:0 10px 30px rgba(0,0,0,.25);}
+    h1{margin:0 0 .35rem;font-size:1.6rem;text-align:center}
+    .lead{color:var(--muted);margin:0 0 1rem;text-align:center}
+    label{display:block;font-size:13px;color:var(--muted);margin:8px 0 6px}
+    input{width:100%;border-radius:12px;border:1px solid var(--border);background:var(--input); color:var(--fg);padding:10px 12px;outline:none;font-size:14px}
+    input:focus{box-shadow:0 0 0 3px rgba(59,130,246,.25)}
+    .btn{background:linear-gradient(135deg,var(--accentA),var(--accentB));border:none;color:#06111d; font-weight:800;padding:10px 18px;border-radius:12px;cursor:pointer;margin-top:12px;width:120px}
+    .btn:active{transform:translateY(1px)}
+    .error{color:#f87171;font-weight:700;margin-top:.75rem;text-align:center;min-height:1.2em}
+    footer{color:#93a3ba;text-align:center;font-size:.85rem;padding:18px}
+  </style>
+
+  <!-- Load config FIRST. Bump v anytime you change config to bust cache -->
+  <script src="config.js?v=v3" defer></script>
+
+  <script>
+    // Boot after config.js loads
+    window.addEventListener('DOMContentLoaded', () => {
+      // Wait a tick to ensure defer'd config.js ran
+      setTimeout(() => {
+        const cfg = window.APP_CONFIG || {};
+        const BRAND = cfg.BRAND || "Training Portal";
+        const PASSWORD = (cfg.PASSWORD || "").trim();
+
+        // Apply brand and reveal page
+        document.title = BRAND;
+        document.querySelector('.brand').textContent = BRAND;
+        document.getElementById('hero').textContent = BRAND;
+        document.documentElement.setAttribute('data-ready','true');
+
+        // Helpful diagnostics in console
+        console.info('APP_CONFIG', { brand: BRAND, pwdLen: PASSWORD.length, version: cfg.VERSION });
+
+        // Wire up form
+        const err = document.getElementById('error');
+        const form = document.getElementById('gateForm');
+        const input = document.getElementById('pwd');
+
+        // If config missing a password, show error immediately
+        if (!('PASSWORD' in cfg)) {
+          err.textContent = "Config not loaded — check that config.js exists at /config.js and has no <script> tags.";
+        } else if (!PASSWORD) {
+          err.textContent = "Portal password not configured in config.js.";
+        }
+
+        form.addEventListener('submit', (e) => {
+          e.preventDefault();
+          err.textContent = "";
+          const val = (input.value || "").trim();
+          if (!val) { err.textContent = "Enter the portal password."; return; }
+          if (val !== PASSWORD) { err.textContent = "Incorrect password."; return; }
+          // Success -> go to playlist selector
+          location.href = "select.html";
+        });
+
+        // Enter to submit works automatically, but ensure button click is consistent
+        document.getElementById('go').addEventListener('click', () => form.requestSubmit());
+      }, 0);
+    });
+  </script>
 </head>
 <body>
   <header>
-    <div></div>
-    <div id="brand" class="brand">Training Portal</div>
-    <img class="logo" src="CX%20Advanced%20Solutions_Smaller_white.png" alt="CX Advanced Solutions">
+    <div class="wrap">
+      <div class="left">
+        <a class="btnLink" href="admin.html">Admin</a>
+      </div>
+      <div class="center"><div class="brand">Loading…</div></div>
+      <div class="right"><img src="CX%20Advanced%20Solutions_Smaller_white.png" alt="CX Advanced Solutions" class="logo" /></div>
+    </div>
   </header>
 
   <main>
     <section class="card">
-      <h1 id="title">Welcome</h1>
+      <h1 id="hero">Loading…</h1>
       <p class="lead">Enter the portal password to continue.</p>
 
-      <form id="gate" class="form" novalidate>
+      <form id="gateForm" novalidate>
         <label for="pwd">Portal password</label>
-        <div class="row">
-          <input id="pwd" type="password" placeholder="Enter password" autocomplete="off" spellcheck="false">
-          <button class="btn" type="submit">Enter</button>
-        </div>
-        <p id="err" class="error" role="alert" aria-live="polite"></p>
+        <input id="pwd" name="pwd" type="password" placeholder="••••••••" autocomplete="off" />
+        <div style="display:flex;justify-content:center"><button id="go" class="btn" type="submit">Enter</button></div>
+        <p id="error" class="error" role="alert" aria-live="polite"></p>
       </form>
     </section>
   </main>
 
   <footer>© <span id="yr"></span> Training</footer>
-
-  <script src="config.js?v=v1"></script>
   <script>
-    const { BRAND, PASSWORD } = window.APP_CONFIG || {};
-    document.getElementById('brand').textContent = BRAND || 'Training Portal';
-    document.getElementById('title').textContent = BRAND || 'Training Portal';
-    document.getElementById('yr').textContent = new Date().getFullYear();
-
-    const err = document.getElementById('err');
-    const form = document.getElementById('gate');
-    const pwd  = document.getElementById('pwd');
-
-    form.addEventListener('submit', (e)=>{
-      e.preventDefault();
-      err.textContent = '';
-      const v = (pwd.value||'').trim();
-      if (!v){ err.textContent = 'Please enter a password.'; return; }
-      if (v !== PASSWORD){ err.textContent = 'Incorrect password.'; return; }
-      // success – remember a short session
-      sessionStorage.setItem('tp2_ok','1');
-      location.href = 'select.html';
-    });
-
-    // allow Enter from the field
-    pwd.addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ form.dispatchEvent(new Event('submit')); }});
+    document.getElementById("yr").textContent=new Date().getFullYear();
   </script>
 </body>
 </html>
