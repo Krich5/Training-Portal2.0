@@ -17,8 +17,11 @@
     .right{justify-self:end}
     .logo{height:36px}
     .btnLink{background:var(--input);color:var(--fg);border:1px solid var(--border);font-weight:800;padding:8px 14px;border-radius:12px;text-decoration:none}
+
     .wrap{max-width:1280px;margin:26px auto;padding:0 18px}
     .card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:18px;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+
+    /* Player section */
     .playerShell{display:grid;grid-template-columns:1fr;gap:14px}
     h1{margin:0 0 6px 0;font-size:clamp(18px,2vw,22px);color:var(--muted);font-weight:700}
     #player{width:100%;aspect-ratio:16/9;background:#000;border-radius:16px}
@@ -26,6 +29,8 @@
     .bar{height:100%;width:0%;background:linear-gradient(135deg,var(--accentA),var(--accentB))}
     .row{display:flex;justify-content:space-between;align-items:center;margin-top:8px;gap:10px;flex-wrap:wrap}
     .muted{color:var(--muted)}
+
+    /* Playlist bottom */
     .playlistShell{margin-top:18px}
     .listHeader{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
     #playlist{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px}
@@ -34,20 +39,70 @@
     .item.active{outline:2px solid var(--accentB)}
     .badge{font-size:.8rem;color:var(--muted)}
     .badge.done{color:var(--ok);font-weight:700}
+
+    /* Gate (login-type picker) */
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+    .tile{display:flex;flex-direction:column;gap:6px;padding:16px;border-radius:14px;border:1px solid var(--border);background:var(--input);text-decoration:none;color:var(--fg);cursor:pointer}
+    .tile:hover{outline:2px solid var(--accentB)}
+    .head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+    .chip{border:1px solid var(--border);background:var(--input);border-radius:999px;padding:6px 10px;font-size:.85rem}
   </style>
+
   <script src="config.js?v=v4" defer></script>
   <script>
+    // ------- Configure the three login-type variants (update file names when you add variant videos) -------
+    const LOGIN_TYPES = {
+      desktop: { key:'desktop', label:'Desktop', file:'Agent Login.mp4' },
+      wxc:     { key:'wxc',     label:'Extension (Webex Calling)', file:'Agent Login.mp4' },
+      ucm:     { key:'ucm',     label:'Extension (UCM)', file:'Agent Login.mp4' }
+    };
+
     window.addEventListener('DOMContentLoaded', () => {
-      if (!sessionStorage.getItem('portal_auth')) { location.replace('index.html'); return; }
+      if (!sessionStorage.getItem('portal_auth')) { location.replace('select.html'); return; }
 
       const BRAND = (window.APP_CONFIG && window.APP_CONFIG.BRAND) || 'Training Portal';
       document.title = BRAND + ' — Agent Training';
       document.getElementById('hdr').textContent = 'Agent Training';
       document.documentElement.setAttribute('data-ready','true');
 
+      // Gate or App?
+      const chosen = sessionStorage.getItem('agent_login_type');
+      if (!chosen) {
+        document.getElementById('selectGate').style.display = '';
+        document.getElementById('appShell').style.display = 'none';
+        bindGate();
+      } else {
+        startApp(chosen);
+      }
+    });
+
+    function bindGate(){
+      document.querySelectorAll('[data-choice]').forEach(btn=>{
+        btn.addEventListener('click', ()=>{
+          const key = btn.getAttribute('data-choice');
+          sessionStorage.setItem('agent_login_type', key);
+          startApp(key);
+        });
+      });
+    }
+
+    function changeChoice(){
+      sessionStorage.removeItem('agent_login_type');
+      location.reload();
+    }
+
+    function startApp(loginKey){
+      // swap views
+      document.getElementById('selectGate').style.display = 'none';
+      document.getElementById('appShell').style.display = '';
+
+      const choice = LOGIN_TYPES[loginKey] || LOGIN_TYPES.desktop;
+      document.getElementById('choiceChip').textContent = `Login type: ${choice.label}`;
+
+      // ====== Playlist (first video varies by login type) ======
       const srcBase = 'AgentVideos/';
       const vids = [
-        { title:'1. Agent login',            file:'Agent Login.mp4' },
+        { title:`1. Agent login — ${choice.label}`, file: choice.file },
         { title:'2. Profile settings',       file:'Profiles Settings.mp4' },
         { title:'3. Agent state',            file:'Agent State.mp4' },
         { title:'4. Outbound calling',       file:'Outbound Calling.mp4' },
@@ -108,7 +163,7 @@
       courseNote.textContent = 'Agent';
       loadCurrent(false);
       renderList();
-    });
+    }
   </script>
 </head>
 <body>
@@ -119,7 +174,35 @@
   </header>
 
   <div class="wrap">
-    <section class="card playerShell">
+
+    <!-- GATE: choose login type -->
+    <section id="selectGate" class="card" style="display:none">
+      <div class="head">
+        <h2 style="margin:0">Select your login type</h2>
+        <div class="muted">This sets the first video in your playlist.</div>
+      </div>
+      <div class="grid">
+        <button class="tile" data-choice="desktop">
+          <strong>Desktop</strong>
+          <span class="muted">Full desktop client</span>
+        </button>
+        <button class="tile" data-choice="wxc">
+          <strong>Extension (Webex Calling)</strong>
+          <span class="muted">Browser + WxC extension</span>
+        </button>
+        <button class="tile" data-choice="ucm">
+          <strong>Extension (UCM)</strong>
+          <span class="muted">Browser + UCM extension</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- APP: player + playlist -->
+    <section id="appShell" class="card playerShell" style="display:none">
+      <div class="head">
+        <h2 style="margin:0">Agent Training</h2>
+        <div class="chip" id="choiceChip">Login type: -</div>
+      </div>
       <div>
         <h1 id="videoTitle">Loading…</h1>
         <video id="player" controls playsinline preload="metadata"
@@ -128,12 +211,15 @@
         <div class="prog" aria-label="overall progress"><div id="bar" class="bar"></div></div>
         <div class="row">
           <div id="progText" class="muted">0/0 completed</div>
-          <div id="hint" class="muted"></div>
+          <div class="muted" id="hint"></div>
+        </div>
+        <div class="row">
+          <button class="btnLink" onclick="changeChoice()">Change login type</button>
         </div>
       </div>
     </section>
 
-    <section class="card playlistShell">
+    <section id="playlistCard" class="card playlistShell" style="">
       <div class="listHeader">
         <h2 style="margin:0">Playlist</h2>
         <div class="muted" id="courseNote"></div>
