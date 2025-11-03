@@ -23,22 +23,30 @@
     a.tile{display:block;text-decoration:none;color:var(--fg);background:var(--input);border:1px solid var(--border);border-radius:14px;padding:16px}
     a.tile:hover{outline:2px solid var(--accentB)}
     .muted{color:var(--muted)}
-    .btnLink{background:var(--input);color:var(--fg);border:1px solid var(--border);font-weight:800;padding:8px 14px;border-radius:12px;text-decoration:none}
+    .btnLink{background:var(--input);color:var(--fg);border:1px solid var(--border);font-weight:800;padding:8px 14px;border-radius:12px;text-decoration:none;cursor:pointer}
   </style>
   <script src="config.js?v=v4" defer></script>
   <script>
     window.addEventListener('DOMContentLoaded', ()=>{
-      if (sessionStorage.getItem('portal_auth') !== 'ok'){ location.replace('index.html'); return; }
       const cfg = window.APP_CONFIG || {};
       document.title = (cfg.BRAND || 'Training Portal') + ' — Select';
       document.getElementById('brand').textContent = cfg.BRAND || 'Training Portal';
       document.documentElement.setAttribute('data-ready','true');
+
+      // redirect to login if not signed in
+      if (sessionStorage.getItem('portal_auth') !== 'ok'){ location.replace('index.html'); return; }
+
+      // sign out
+      document.getElementById('signoutBtn').addEventListener('click', ()=>{
+        sessionStorage.clear();
+        location.replace('index.html');
+      });
     });
   </script>
 </head>
 <body>
   <header>
-    <div class="left"><a class="btnLink" href="index.html">← Back</a></div>
+    <div class="left"><button id="signoutBtn" class="btnLink">Sign Out</button></div>
     <div class="center" id="brand">Training Portal</div>
     <div class="right"><img class="logo" src="CX%20Advanced%20Solutions_Smaller_white.png" alt="CX Advanced Solutions"></div>
   </header>
