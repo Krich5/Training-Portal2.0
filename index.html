@@ -30,52 +30,37 @@
     .error{color:#f87171;font-weight:700;margin-top:.75rem;text-align:center;min-height:1.2em}
     footer{color:#93a3ba;text-align:center;font-size:.85rem;padding:18px}
   </style>
-
-  <!-- Load config FIRST. Bump v anytime you change config to bust cache -->
-  <script src="config.js?v=v3" defer></script>
-
+  <script src="config.js?v=v4" defer></script>
   <script>
-    // Boot after config.js loads
     window.addEventListener('DOMContentLoaded', () => {
-      // Wait a tick to ensure defer'd config.js ran
       setTimeout(() => {
         const cfg = window.APP_CONFIG || {};
         const BRAND = cfg.BRAND || "Training Portal";
         const PASSWORD = (cfg.PASSWORD || "").trim();
-
-        // Apply brand and reveal page
         document.title = BRAND;
-        document.querySelector('.brand').textContent = BRAND;
-        document.getElementById('hero').textContent = BRAND;
+        const brandEl = document.querySelector('.brand'); if (brandEl) brandEl.textContent = BRAND;
+        const heroEl  = document.getElementById('hero');  if (heroEl)  heroEl.textContent  = BRAND;
         document.documentElement.setAttribute('data-ready','true');
 
-        // Helpful diagnostics in console
-        console.info('APP_CONFIG', { brand: BRAND, pwdLen: PASSWORD.length, version: cfg.VERSION });
-
-        // Wire up form
-        const err = document.getElementById('error');
+        const err  = document.getElementById('error');
         const form = document.getElementById('gateForm');
-        const input = document.getElementById('pwd');
+        const input= document.getElementById('pwd');
+        if (!('PASSWORD' in cfg)) err.textContent = "Config not loaded (check config.js path).";
+        else if (!PASSWORD)       err.textContent = "Portal password not configured in config.js.";
 
-        // If config missing a password, show error immediately
-        if (!('PASSWORD' in cfg)) {
-          err.textContent = "Config not loaded — check that config.js exists at /config.js and has no <script> tags.";
-        } else if (!PASSWORD) {
-          err.textContent = "Portal password not configured in config.js.";
-        }
-
-        form.addEventListener('submit', (e) => {
+        form.addEventListener('submit', (e)=>{
           e.preventDefault();
           err.textContent = "";
-          const val = (input.value || "").trim();
-          if (!val) { err.textContent = "Enter the portal password."; return; }
-          if (val !== PASSWORD) { err.textContent = "Incorrect password."; return; }
-          // Success -> go to playlist selector
-          location.href = "select.html";
+          const val = (input.value||"").trim();
+          if (!val){ err.textContent = "Enter the portal password."; return; }
+          if (val !== PASSWORD){ err.textContent = "Incorrect password."; return; }
+          // ✅ set session flag BEFORE navigating
+          sessionStorage.setItem('portal_auth', cfg.VERSION || 'v1');
+          // Navigate
+          location.href = 'select.html';
         });
-
-        // Enter to submit works automatically, but ensure button click is consistent
-        document.getElementById('go').addEventListener('click', () => form.requestSubmit());
+        // Enter key helper
+        document.getElementById('go').addEventListener('click', ()=>form.requestSubmit());
       }, 0);
     });
   </script>
@@ -83,9 +68,7 @@
 <body>
   <header>
     <div class="wrap">
-      <div class="left">
-        <a class="btnLink" href="admin.html">Admin</a>
-      </div>
+      <div class="left"><a class="btnLink" href="admin.html">Admin</a></div>
       <div class="center"><div class="brand">Loading…</div></div>
       <div class="right"><img src="CX%20Advanced%20Solutions_Smaller_white.png" alt="CX Advanced Solutions" class="logo" /></div>
     </div>
@@ -95,7 +78,6 @@
     <section class="card">
       <h1 id="hero">Loading…</h1>
       <p class="lead">Enter the portal password to continue.</p>
-
       <form id="gateForm" novalidate>
         <label for="pwd">Portal password</label>
         <input id="pwd" name="pwd" type="password" placeholder="••••••••" autocomplete="off" />
@@ -106,8 +88,6 @@
   </main>
 
   <footer>© <span id="yr"></span> Training</footer>
-  <script>
-    document.getElementById("yr").textContent=new Date().getFullYear();
-  </script>
+  <script>document.getElementById("yr").textContent=new Date().getFullYear();</script>
 </body>
 </html>
