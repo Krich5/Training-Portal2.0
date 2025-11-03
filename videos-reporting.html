@@ -27,8 +27,8 @@
     window.addEventListener('DOMContentLoaded',()=>{
       if (!sessionStorage.getItem('portal_auth')) { location.replace('index.html'); return; }
       const BRAND = (window.APP_CONFIG && window.APP_CONFIG.BRAND) || 'Training Portal';
-      document.title = BRAND + ' — <PAGE TITLE>';
-      document.getElementById('hdr').textContent='<HEADER TEXT>';
+      document.title = BRAND + ' — Reporting Training';
+      document.getElementById('hdr').textContent='Reporting Training';
       document.documentElement.setAttribute('data-ready','true');
     });
   </script>
