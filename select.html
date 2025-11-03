@@ -1,72 +1,61 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-ready="false">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Select Training</title>
-<meta name="color-scheme" content="dark">
-<style>
-  :root{ --bg:#0b1020; --bg2:#0a132a; --card:#131a2a; --muted:#92a0b8; --fg:#e9edf5; --input:#0e1525; --border:rgba(255,255,255,.08); --accentA:#22d3ee; --accentB:#3b82f6; }
-  *{box-sizing:border-box}
-  body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,"Noto Sans";
-       background:linear-gradient(180deg,var(--bg),var(--bg2)); color:var(--fg); min-height:100vh}
-  header{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:16px 20px;border-bottom:1px solid var(--border)}
-  .left{justify-self:start}
-  .brand{justify-self:center;font-weight:800}
-  .logo{justify-self:end;height:36px;opacity:.9}
-  .btnLink{background:var(--input);color:var(--fg);border:1px solid var(--border);font-weight:800;padding:8px 14px;border-radius:12px;text-decoration:none}
-  main{max-width:1100px;margin:28px auto;padding:0 16px}
-  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
-  .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px;cursor:pointer;transition:transform .06s ease}
-  .card:hover{transform:translateY(-2px)}
-  .title{font-weight:800;margin:.25rem 0}
-  .muted{color:var(--muted)}
-</style>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Select Training</title>
+  <meta name="color-scheme" content="dark">
+  <style>
+    :root{ --bg:#0b1020; --card:#131a2a; --muted:#92a0b8; --fg:#e9edf5; --accentA:#22d3ee; --accentB:#3b82f6; --input:#0e1525; --border:rgba(255,255,255,.08); }
+    *,*::before,*::after{box-sizing:border-box}
+    html[data-ready="false"] body{opacity:0}
+    body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,"Noto Sans"; background:var(--bg); color:var(--fg); transition:opacity .12s ease}
+    header{padding:14px 18px;border-bottom:1px solid rgba(255,255,255,.06)}
+    .wrap{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr auto 1fr;align-items:center}
+    .center{justify-self:center;text-align:center}
+    .brand{font-weight:800;letter-spacing:.2px;font-size:1.1rem}
+    main{max-width:1100px;margin:28px auto;padding:0 16px}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px;text-decoration:none;color:inherit}
+    .card:hover{outline:2px solid var(--accentB)}
+    h1{font-size:1.5rem;margin:0 0 10px}
+    .muted{color:var(--muted)}
+  </style>
+  <script src="config.js?v=v4" defer></script>
+  <script>
+    window.addEventListener('DOMContentLoaded', ()=>{
+      setTimeout(()=>{
+        // ✅ require the same auth flag set by index.html
+        if (!sessionStorage.getItem('portal_auth')) {
+          location.replace('index.html');
+          return;
+        }
+        const cfg = window.APP_CONFIG || {};
+        const BRAND = cfg.BRAND || "Training Portal";
+        document.title = BRAND + " — Select Training";
+        document.querySelector('.brand').textContent = BRAND;
+        document.documentElement.setAttribute('data-ready','true');
+      },0);
+    });
+  </script>
 </head>
 <body>
   <header>
-    <a class="btnLink left" href="index.html">← Back</a>
-    <div id="brand" class="brand">Training</div>
-    <img class="logo" src="CX%20Advanced%20Solutions_Smaller_white.png" alt="CX Advanced Solutions">
+    <div class="wrap">
+      <div class="center"><div class="brand">Loading…</div></div>
+    </div>
   </header>
 
   <main>
-    <h2 style="margin:0 0 12px 0">Select a training playlist</h2>
+    <h1>Select a training</h1>
+    <p class="muted">Pick a playlist to begin.</p>
     <div class="grid">
-      <div class="card" data-course="agent">
-        <div class="title">Agent Training</div>
-        <div class="muted">Core day-to-day workflows for agents.</div>
-      </div>
-      <div class="card" data-course="supervisor">
-        <div class="title">Supervisor Training</div>
-        <div class="muted">Supervisory tools and oversight.</div>
-      </div>
-      <div class="card" data-course="admin">
-        <div class="title">Admin Training</div>
-        <div class="muted">Configuration and administration.</div>
-      </div>
-      <div class="card" data-course="reporting">
-        <div class="title">Reporting</div>
-        <div class="muted">Analytics and performance reports.</div>
-      </div>
-      <div class="card" data-course="general">
-        <div class="title">General Training</div>
-        <div class="muted">Helpful tips & miscellaneous topics.</div>
-      </div>
+      <a class="card" href="videos-agent.html"><strong>Agent Training</strong><div class="muted">Core agent workflows</div></a>
+      <a class="card" href="videos-supervisor.html"><strong>Supervisor Training</strong><div class="muted">Team management</div></a>
+      <a class="card" href="videos-admin.html"><strong>Admin Training</strong><div class="muted">Configuration & setup</div></a>
+      <a class="card" href="videos-reporting.html"><strong>Reporting</strong><div class="muted">Analytics overview</div></a>
+      <a class="card" href="videos-other.html"><strong>Other Training</strong><div class="muted">Additional topics</div></a>
     </div>
   </main>
-
-  <script src="config.js?v=v1"></script>
-  <script>
-    if (sessionStorage.getItem('tp2_ok')!=='1'){ location.href='index.html'; }
-    document.getElementById('brand').textContent = (window.APP_CONFIG?.BRAND)||'Training';
-
-    document.querySelectorAll('[data-course]').forEach(el=>{
-      el.addEventListener('click', ()=>{
-        const course = el.getAttribute('data-course');
-        location.href = 'videos.html?course=' + encodeURIComponent(course);
-      });
-    });
-  </script>
 </body>
 </html>
