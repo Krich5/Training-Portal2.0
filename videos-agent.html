@@ -50,59 +50,50 @@
 
   <script src="config.js?v=v4" defer></script>
   <script>
-    // ------- Configure the three login-type variants (update file names when you add variant videos) -------
-    const LOGIN_TYPES = {
-      desktop: { key:'desktop', label:'Desktop', file:'Agent Login.mp4' },
-      wxc:     { key:'wxc',     label:'Extension (Webex Calling)', file:'Agent Login.mp4' },
-      ucm:     { key:'ucm',     label:'Extension (UCM)', file:'Agent Login.mp4' }
-    };
-
     window.addEventListener('DOMContentLoaded', () => {
-      if (!sessionStorage.getItem('portal_auth')) { location.replace('select.html'); return; }
-
+      if (sessionStorage.getItem('portal_auth') !== 'ok'){ location.replace('index.html'); return; }
       const BRAND = (window.APP_CONFIG && window.APP_CONFIG.BRAND) || 'Training Portal';
       document.title = BRAND + ' — Agent Training';
       document.getElementById('hdr').textContent = 'Agent Training';
       document.documentElement.setAttribute('data-ready','true');
 
-      // Gate or App?
-      const chosen = sessionStorage.getItem('agent_login_type');
-      if (!chosen) {
-        document.getElementById('selectGate').style.display = '';
-        document.getElementById('appShell').style.display = 'none';
-        bindGate();
-      } else {
-        startApp(chosen);
-      }
+      // Boot to selector view
+      showSelector();
+      bindSelector();
+      bindBack();
     });
 
-    function bindGate(){
-      document.querySelectorAll('[data-choice]').forEach(btn=>{
-        btn.addEventListener('click', ()=>{
-          const key = btn.getAttribute('data-choice');
-          sessionStorage.setItem('agent_login_type', key);
-          startApp(key);
-        });
+    function showSelector(){
+      document.getElementById('selectGate').style.display = '';
+      document.getElementById('appShell').style.display = 'none';
+      document.getElementById('playlistCard').style.display = 'none'; // hide playlist bar until selected
+    }
+
+    function bindSelector(){
+      // Desktop → start playlist
+      document.getElementById('optDesktop').addEventListener('click', ()=> startDesktop());
+      // Extensions → coming soon
+      document.getElementById('optWxC').addEventListener('click', ()=> location.href='coming-soon.html');
+      document.getElementById('optUCM').addEventListener('click', ()=> location.href='coming-soon.html');
+    }
+
+    function bindBack(){
+      document.getElementById('backBtn').addEventListener('click', (e)=>{
+        e.preventDefault();
+        showSelector();
+        // stop video if playing
+        const v = document.getElementById('player'); v.pause(); v.removeAttribute('src'); v.load();
       });
     }
 
-    function changeChoice(){
-      sessionStorage.removeItem('agent_login_type');
-      location.reload();
-    }
-
-    function startApp(loginKey){
-      // swap views
+    // ------- Desktop playlist -------
+    function startDesktop(){
       document.getElementById('selectGate').style.display = 'none';
       document.getElementById('appShell').style.display = '';
+      document.getElementById('playlistCard').style.display = '';
 
-      const choice = LOGIN_TYPES[loginKey] || LOGIN_TYPES.desktop;
-      document.getElementById('choiceChip').textContent = `Login type: ${choice.label}`;
-
-      // ====== Playlist (first video varies by login type) ======
-      const srcBase = 'AgentVideos/';
       const vids = [
-        { title:`1. Agent login — ${choice.label}`, file: choice.file },
+        { title:'1. Agent login — Desktop', file:'Agent Login.mp4' },
         { title:'2. Profile settings',       file:'Profiles Settings.mp4' },
         { title:'3. Agent state',            file:'Agent State.mp4' },
         { title:'4. Outbound calling',       file:'Outbound Calling.mp4' },
@@ -113,13 +104,14 @@
         { title:'9. Sign out',               file:'Sign Out.mp4' }
       ];
 
-      const listEl = document.getElementById('playlist');
-      const player = document.getElementById('player');
-      const videoTitle = document.getElementById('videoTitle');
-      const bar = document.getElementById('bar');
-      const progText = document.getElementById('progText');
-      const hint = document.getElementById('hint');
-      const courseNote = document.getElementById('courseNote');
+      const srcBase   = 'AgentVideos/';
+      const listEl    = document.getElementById('playlist');
+      const player    = document.getElementById('player');
+      const videoTit  = document.getElementById('videoTitle');
+      const bar       = document.getElementById('bar');
+      const progText  = document.getElementById('progText');
+      const hint      = document.getElementById('hint');
+      const courseNote= document.getElementById('courseNote');
 
       let idx = 0;
       let completed = new Array(vids.length).fill(false);
@@ -139,8 +131,8 @@
           </button>`).join('');
         listEl.querySelectorAll('.item').forEach(el=>{
           el.addEventListener('click', ()=>{
-            const i = Number(el.getAttribute('data-i'));
-            idx = i; loadCurrent(true);
+            idx = Number(el.getAttribute('data-i'));
+            loadCurrent(true);
           });
         });
         overall();
@@ -148,7 +140,7 @@
 
       function loadCurrent(autoplay){
         const v = vids[idx];
-        videoTitle.textContent = v.title;
+        videoTit.textContent = v.title;
         player.src = srcBase + encodeURI(v.file);
         player.onloadedmetadata = ()=>{ if (autoplay) player.play(); };
         renderList();
@@ -168,40 +160,40 @@
 </head>
 <body>
   <header>
-    <div class="left"><a class="btnLink" href="select.html">← Back</a></div>
+    <div class="left"><a id="backBtn" class="btnLink" href="#">← Back</a></div>
     <div class="center" id="hdr">Agent Training</div>
     <div class="right"><img class="logo" src="CX%20Advanced%20Solutions_Smaller_white.png" alt="CX Advanced Solutions"></div>
   </header>
 
   <div class="wrap">
 
-    <!-- GATE: choose login type -->
-    <section id="selectGate" class="card" style="display:none">
+    <!-- SELECTOR VIEW -->
+    <section id="selectGate" class="card">
       <div class="head">
         <h2 style="margin:0">Select your login type</h2>
         <div class="muted">This sets the first video in your playlist.</div>
       </div>
       <div class="grid">
-        <button class="tile" data-choice="desktop">
+        <button class="tile" id="optDesktop">
           <strong>Desktop</strong>
           <span class="muted">Full desktop client</span>
         </button>
-        <button class="tile" data-choice="wxc">
+        <button class="tile" id="optWxC">
           <strong>Extension (Webex Calling)</strong>
-          <span class="muted">Browser + WxC extension</span>
+          <span class="muted">Coming soon</span>
         </button>
-        <button class="tile" data-choice="ucm">
+        <button class="tile" id="optUCM">
           <strong>Extension (UCM)</strong>
-          <span class="muted">Browser + UCM extension</span>
+          <span class="muted">Coming soon</span>
         </button>
       </div>
     </section>
 
-    <!-- APP: player + playlist -->
+    <!-- PLAYER VIEW -->
     <section id="appShell" class="card playerShell" style="display:none">
       <div class="head">
         <h2 style="margin:0">Agent Training</h2>
-        <div class="chip" id="choiceChip">Login type: -</div>
+        <div class="chip">Login type: Desktop</div>
       </div>
       <div>
         <h1 id="videoTitle">Loading…</h1>
@@ -213,16 +205,14 @@
           <div id="progText" class="muted">0/0 completed</div>
           <div class="muted" id="hint"></div>
         </div>
-        <div class="row">
-          <button class="btnLink" onclick="changeChoice()">Change login type</button>
-        </div>
       </div>
     </section>
 
-    <section id="playlistCard" class="card playlistShell" style="">
+    <!-- PLAYLIST (hidden until Desktop selected) -->
+    <section id="playlistCard" class="card playlistShell" style="display:none">
       <div class="listHeader">
         <h2 style="margin:0">Playlist</h2>
-        <div class="muted" id="courseNote"></div>
+        <div class="muted" id="courseNote">Agent</div>
       </div>
       <div id="playlist"></div>
     </section>
